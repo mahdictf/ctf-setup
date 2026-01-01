@@ -140,3 +140,11 @@ cat >> ~/.bashrc <<'EOF'
 alias mycmd='mycmd'
 EOF
 ```
+
+---
+
+## 📝 License
+
+Free to use, modify, and distribute. Have fun hacking! 🎯
+
+---
