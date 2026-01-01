@@ -1,8 +1,6 @@
-# 🎯 CTF VM Setup — Simple Guide
+# 🎯 CTF VM Setup —
 
 This project helps you prepare a Linux VM for Capture-The-Flag (CTF) practice and pentesting. It installs useful tools, creates directories (htb, thm, ctf), and adds handy shell commands (aliases and functions) to speed up your workflow.
-
-This README is short and easy to follow — suitable for publishing.
 
 ---
 
@@ -142,22 +140,3 @@ cat >> ~/.bashrc <<'EOF'
 alias mycmd='mycmd'
 EOF
 ```
-
----
-
-## Publishing tips
-
-- Add a `LICENSE` before publishing.
-- Remove any secrets from `config.conf`.
-- Optionally add `CONTRIBUTING.md` if accepting contributions.
-
----
-
-If you want, I can also:
-
-- produce a single-page QuickStart for the release,
-- or create a `CHANGELOG.md` describing recent fixes.
-
-Tell me which you'd like next and I'll prepare it.
-
-Happy hacking! 🎯
