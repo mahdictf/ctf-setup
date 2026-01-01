@@ -1,540 +1,163 @@
-# 🎯 CTF VM Setup - Modular System
+# 🎯 CTF VM Setup — Simple Guide
 
-Professional, customizable setup system for CTF and penetration testing VMs.
+This project helps you prepare a Linux VM for Capture-The-Flag (CTF) practice and pentesting. It installs useful tools, creates directories (htb, thm, ctf), and adds handy shell commands (aliases and functions) to speed up your workflow.
 
-## 📋 Features
-
-### Tier 1 (Core Features)
-
-- ✅ **Universal Workspace Generator** - Organized folders for any CTF platform
-- ✅ **Multi-Platform VPN Manager** - Handle HTB, THM, and other VPN configs
-- ✅ **Smart Reverse Shell Listener** - Auto-generates payloads with your IP
-- ✅ **File Transfer Arsenal** - HTTP, SMB servers in one command
-- ✅ **Tool Updater** - Update all Git repos with one command
-
-### Tier 2 (Enhanced Features)
-
-- ✅ **Payload Generator** - Instant reverse shells, web shells, injections
-- ✅ **Network Info Dashboard** - All network details at a glance
-- ✅ **Target Manager** - Save target IP/hostname, auto-update /etc/hosts
-
-### Optional Features
-
-- 🔹 Active Directory Tools (BloodHound, Rubeus, etc.)
-- 🔹 Docker Environment
-- 🔹 Burp Suite Configuration
-- 🔹 Report Generation
-- 🔹 Screenshot Management
-- 🔹 Web Enumeration Automation
+This README is short and easy to follow — suitable for publishing.
 
 ---
 
-## 🚀 Quick Start
+## Quick summary
 
-### Installation
+- What it does: installs tools, creates workspaces, and adds useful shell commands.
+- How to use it: run the installer and then source your shell config.
+- Who it's for: CTF players and pentesters who want a ready-to-use environment.
 
-```bash
-# Clone or download the setup files
-cd ~/ctf-setup
+---
 
-# Make installer executable
-chmod +x install.sh
+## Quick start (recommended)
 
-# Run interactive installer
-./install.sh
-```
-
-### First-Time Setup
-
-1. **Choose Installation Mode:**
-   - Quick Install (recommended) - Installs all Tier 1 & 2 features
-   - Custom Install - Pick specific features
-2. **After Installation:**
+Open a terminal and run:
 
 ```bash
-# Apply changes
+cd ~/ctf-setup        # go to the project folder
+chmod +x install.sh   # make installer runnable
+./install.sh          # run the interactive installer
+# choose option 1 for Quick Install, or 2 for Custom Install
+
+# when done, apply changes to your shell
 source ~/.bashrc
-
-# Or log out and log back in
 ```
+
+After that you have commands like `box-new`, `vpn`, `listener`, `serve`, etc.
 
 ---
 
-## 📁 Directory Structure
+## Key files and folders
 
-```
-~/ctf-setup/
-├── install.sh              # Interactive installer
-├── config.conf            # Configuration file (edit this!)
-├── core/                  # Core system setup
-├── features/              # Main features (Tier 1 & 2)
-├── optional/              # Optional features
-├── custom/                # YOUR custom features
-└── README.md              # This file
-
-After installation:
-~/
-├── htb/                   # HackTheBox machines
-├── thm/                   # TryHackMe rooms
-├── ctf/                   # CTF challenges
-├── tools/                 # All pentesting tools
-├── wordlists/             # Wordlists
-├── loot/                  # Collected credentials/data
-└── exploits/              # Exploit scripts
-```
+- `install.sh` — interactive installer (Quick / Custom / Update / Edit config)
+- `config.conf` — main settings file (change before install to customize)
+- `core/` — core setup scripts (system packages, directories)
+- `features/` — feature scripts that add commands and tools
+- `optional/` — optional features (enable in `config.conf`)
+- `custom/` — your custom feature scripts
 
 ---
 
-## ⚙️ Configuration
+## Most useful commands (examples)
 
-### Edit Configuration
+- Workspaces
 
-```bash
-# Open configuration file
-nano ~/ctf-setup/config.conf
+  - `box-new <name> <platform>` — create a workspace (platform: htb, thm, ctf)
+  - `htb`, `thm`, `ctf` — jump to workspace folders
 
-# Or use the installer
-./install.sh
-# Select option [3] Edit Configuration
-```
+- VPN
 
-### Common Customizations
+  - `vpnlist` — show available .ovpn files in `~/Downloads`
+  - `vpn <name>` — connect with `sudo openvpn <file>`
+  - `vpncheck` — check if `tun0` is up
+  - `myip` — show VPN IP
 
-**Change platforms:**
+- Listener & payloads
+
+  - `listener [port]` — prints payloads and starts `nc` listener
+
+- File sharing
+
+  - `serve [port]` — simple Python HTTP server
+  - `smbserv [share]` — run `impacket-smbserver` (if installed)
+
+- Misc
+  - `payload <type>` — prints reverse-shell payloads (bash, python, powershell, etc.)
+  - `netinfo` — show local / VPN / public IPs and interfaces
+  - `target <ip> [hostname]` — set a target and optionally add to `/etc/hosts`
+  - `update-tools` — update all cloned tool repositories
+
+Remember to run `source ~/.bashrc` to enable commands after installation.
+
+---
+
+## Edit configuration (simple)
+
+Open `config.conf` in an editor and change values. Example:
 
 ```ini
-SETUP_HTB=true
-SETUP_THM=false
-SETUP_CTF=true
+# enable/disable features
+FEATURE_VPN_MANAGER=true
+FEATURE_PAYLOAD_GEN=true
+
+# directory names
+DIR_TOOLS="tools"
+DIR_WORDLISTS="wordlists"
+
+# install specific tools
+INSTALL_PEASS=true
+INSTALL_KERBRUTE=true
 ```
 
-**Disable features:**
+Save and re-run `./install.sh` (use Update or Custom mode) to apply changes.
 
-```ini
-FEATURE_PAYLOAD_GEN=false
-FEATURE_BLOODHOUND=false
+---
+
+## Why you sometimes see prompts during install
+
+Some system packages (Debian/Ubuntu) ask questions during installation. For example, `krb5-user` asks for a "default Kerberos realm". You can:
+
+- press OK to accept the default (safe if you don't use Kerberos);
+- or enter a realm (e.g., `EXAMPLE.COM`) if you need Kerberos.
+
+To avoid the prompt, disable the related package in `config.conf` (e.g., `INSTALL_KERBRUTE=false`) or remove it from the package list in `core/system-setup.sh`.
+
+---
+
+## Troubleshooting (quick)
+
+- Commands missing after install? Run:
+
+```bash
+source ~/.bashrc
+# or log out and back in
 ```
 
-**Change defaults:**
+- Installer always asks for Kerberos realm: edit `config.conf` to disable Kerberos-related installs or skip `krb5-user`.
 
-```ini
-DEFAULT_LISTENER_PORT=9001
-DEFAULT_HTTP_PORT=80
-VPN_CONFIG_PATH="~/vpn-configs"
+- A feature didn't load: check logs:
+
+```bash
+tail -n 200 ~/ctf-setup.log
 ```
 
 ---
 
-## 🎮 Usage
+## Add your own feature (2 steps)
 
-### Core Commands
+1. Create `custom/my-feature.sh` with your functions/aliases.
+2. Set `ALIASES_CUSTOM=true` in `config.conf` and run installer (Update).
 
-#### Workspace Management
-
-```bash
-# Create new workspace
-box-new jerry htb          # HackTheBox
-box-new blue thm           # TryHackMe
-box-new webapp ctf         # Generic CTF
-
-# Navigate to workspaces
-htb                        # cd ~/htb
-thm                        # cd ~/thm
-ctf                        # cd ~/ctf
-```
-
-#### VPN Management
-
-```bash
-# List available VPN configs
-vpnlist
-
-# Connect to VPN
-vpn htb-competitive
-vpn thm
-
-# Check VPN status
-vpncheck
-
-# Get your VPN IP
-myip
-```
-
-#### Reverse Shell Listener
-
-```bash
-# Start listener (auto-shows payloads)
-listener              # Default port 4444
-listener 9001         # Custom port
-
-# Alias
-listen 443
-shell 8080
-```
-
-#### File Transfer
-
-```bash
-# HTTP Server
-serve                 # Port 8000
-serve 80              # Port 80
-serve80               # Same as above
-
-# SMB Server
-smbserv               # Default share name
-smbserv files         # Custom share name
-```
-
-#### Payload Generator
-
-```bash
-# Generate payloads
-payload bash          # Bash reverse shell
-payload python        # Python reverse shell
-payload powershell    # PowerShell reverse shell
-payload nc            # Netcat reverse shell
-payload php           # PHP web shell
-payload sql           # SQL injection
-payload xss           # XSS payloads
-payload xxe           # XXE payloads
-```
-
-#### Network Information
-
-```bash
-# Show all network info
-netinfo
-net
-mynet
-
-# Get VPN IP only
-myip
-```
-
-#### Target Management
-
-```bash
-# Set target
-target 10.10.10.27 jerry.htb
-
-# Show current target
-target
-
-# Use target in commands
-ping $TARGET_IP
-nmap $TARGET_HOST
-
-# Clear target
-target-clear
-```
-
-#### Tool Management
-
-```bash
-# Update all tools
-update-tools
-
-# Copy tools to current directory
-linenum              # Copy LinEnum.sh
-psh                  # Copy PowerShell reverse shell
-```
-
-### Scanning & Enumeration
-
-```bash
-# Nmap
-nnmap 10.10.10.27              # Script scan + full port scan
-nnmap1 10.10.10.27             # Script scan only
-nnmap-full 10.10.10.27         # Full port scan only
-
-# Gobuster
-gobust http://target.com
-
-# Netcat
-nnc 4444                        # rlwrap nc -nvlp 4444
-```
-
----
-
-## 🔧 Customization
-
-### Adding Custom Features
-
-1. **Create a new feature file:**
-
-```bash
-nano ~/ctf-setup/custom/my-feature.sh
-```
-
-2. **Add your code:**
+Example `custom/my-feature.sh`:
 
 ```bash
 #!/bin/bash
-# My Custom Feature
-
-my_command() {
-    echo "This is my custom command!"
-}
-
-alias mycmd='my_command'
-```
-
-3. **Enable it:**
-
-```bash
-# Edit config.conf
-ALIASES_CUSTOM=true
-```
-
-4. **Reinstall or update:**
-
-```bash
-./install.sh
-# Select option [4] Update Existing Installation
-```
-
-### Example Custom Features
-
-**Quick Nmap to All Ports:**
-
-```bash
-# ~/ctf-setup/custom/quick-scan.sh
-quick-scan() {
-    local TARGET=$1
-    if [ -z "$TARGET" ]; then
-        echo "Usage: quick-scan <target>"
-        return 1
-    fi
-
-    mkdir -p nmap
-    sudo nmap -p- -T4 --min-rate 10000 -oA nmap/quick $TARGET
-}
-
-alias qs='quick-scan'
-```
-
-**Auto-Screenshot:**
-
-```bash
-# ~/ctf-setup/custom/screenshot.sh
-ss() {
-    local NAME=$(basename $PWD)
-    local TIME=$(date +%H%M%S)
-    scrot -s "${NAME}_${TIME}.png"
-    echo "Screenshot saved: ${NAME}_${TIME}.png"
-}
+mycmd() { echo "Hello from custom feature"; }
+cat >> ~/.bashrc <<'EOF'
+alias mycmd='mycmd'
+EOF
 ```
 
 ---
 
-## 📦 Feature Modules
+## Publishing tips
 
-### Core Modules (core/)
-
-- `system-setup.sh` - Package installation, directory creation
-- `package-installer.sh` - Package management
-- `directory-setup.sh` - Folder structure
-
-### Feature Modules (features/)
-
-- `01-workspace.sh` - box-new command
-- `02-vpn-manager.sh` - VPN management
-- `03-listener.sh` - Reverse shell listener
-- `04-file-transfer.sh` - File transfer tools
-- `05-payload-gen.sh` - Payload generator
-- `06-network-info.sh` - Network dashboard
-- `07-target-manager.sh` - Target management
-- `08-tool-updater.sh` - Tool update system
-
-### Optional Modules (optional/)
-
-- `bloodhound.sh` - AD enumeration setup
-- `docker-tools.sh` - Docker environment
-- `burp-config.sh` - Burp Suite setup
-- `report-gen.sh` - Report templates
+- Add a `LICENSE` before publishing.
+- Remove any secrets from `config.conf`.
+- Optionally add `CONTRIBUTING.md` if accepting contributions.
 
 ---
 
-## 🔄 Updating
+If you want, I can also:
 
-### Update Tools
+- produce a single-page QuickStart for the release,
+- or create a `CHANGELOG.md` describing recent fixes.
 
-```bash
-update-tools
-```
+Tell me which you'd like next and I'll prepare it.
 
-### Update Configuration
-
-```bash
-# Edit config
-nano ~/ctf-setup/config.conf
-
-# Rerun installer
-./install.sh
-# Select [4] Update Existing Installation
-```
-
-### Pull Latest Version
-
-```bash
-cd ~/ctf-setup
-git pull
-./install.sh
-```
-
----
-
-## 🐛 Troubleshooting
-
-### VPN Not Working
-
-```bash
-# Check VPN status
-vpncheck
-
-# List configs
-vpnlist
-
-# Check interface
-ip a show tun0
-```
-
-### Commands Not Found
-
-```bash
-# Reload shell configuration
-source ~/.bashrc
-
-# Or log out and log back in
-```
-
-### Features Not Loading
-
-```bash
-# Check config
-cat ~/ctf-setup/config.conf | grep FEATURE
-
-# Check logs
-tail -f ~/ctf-setup.log
-```
-
----
-
-## 💡 Tips & Tricks
-
-### Workflow Example
-
-```bash
-# 1. Create workspace
-box-new jerry htb
-
-# 2. Connect to VPN
-vpn htb-labs
-
-# 3. Set target
-target 10.10.10.27 jerry.htb
-
-# 4. Start enumeration
-nnmap $TARGET_IP
-
-# 5. Start listener in another terminal
-listener 4444
-
-# 6. Start file server
-serve
-
-# 7. When you get shell, upgrade it
-python3 -c 'import pty;pty.spawn("/bin/bash")'
-# Ctrl+Z
-stty raw -echo; fg
-export TERM=xterm
-```
-
-### Time-Saving Aliases
-
-```bash
-# Quick navigation
-htb && box-new newmachine htb
-
-# Chain commands
-target 10.10.10.27 box.htb && nnmap $TARGET_IP
-
-# Background HTTP server
-serve > /dev/null 2>&1 &
-```
-
----
-
-## 📚 Resources
-
-### Included Tools
-
-- PEASS-ng (LinPEAS/WinPEAS)
-- Nishang (PowerShell)
-- LinEnum
-- nmapAutomator
-- Kerbrute
-- Windapsearch
-- Impacket
-- SecLists
-
-### Wordlists
-
-- `/usr/share/wordlists/`
-- `/usr/share/seclists/`
-- `~/wordlists/`
-
-### Documentation
-
-- `/opt/` - Cloned tools
-- `~/tools/` - User tools
-- `~/ctf-setup/` - This setup system
-
----
-
-## 🤝 Contributing
-
-### Add Your Own Features
-
-1. Create feature in `custom/` directory
-2. Test it
-3. Share with others!
-
-### Suggest Improvements
-
-- Open an issue
-- Submit a pull request
-- Share your custom modules
-
----
-
-## 📝 License
-
-Free to use, modify, and distribute. Have fun hacking! 🎯
-
----
-
-## ✨ Credits
-
-Created for CTF players and penetration testers who want a professional, customizable VM setup.
-
-**Platforms Supported:**
-
-- HackTheBox
-- TryHackMe
-- CTF Competitions
-- PentesterLab
-- Custom Pentesting Labs
-
----
-
-## 🆘 Support
-
-If you encounter issues:
-
-1. Check logs: `tail -f ~/ctf-setup.log`
-2. Review configuration: `~/ctf-setup/config.conf`
-3. Re-run installer: `./install.sh`
-4. Check documentation above
-
-Happy Hacking! 🚀
+Happy hacking! 🎯
