@@ -1,6 +1,9 @@
 #!/bin/bash
 # Feature: Target Manager
 
+# Create target configuration directory
+mkdir -p ~/.config/ctf/targets
+
 cat >> ~/.bashrc << 'TARGET'
 
 # --- Feature: Target Manager ---

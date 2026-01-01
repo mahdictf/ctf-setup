@@ -1,6 +1,12 @@
 #!/bin/bash
 # Feature: File Transfer Arsenal
 
+# Ensure necessary tools are available
+if ! command -v python3 &>/dev/null; then
+    echo "[!] Python3 not found, skipping file transfer setup"
+    exit 1
+fi
+
 cat >> ~/.bashrc << 'TRANSFER'
 
 # --- Feature: File Transfer ---

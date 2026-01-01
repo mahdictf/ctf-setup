@@ -1,6 +1,9 @@
 #!/bin/bash
 # Feature: Smart Reverse Shell Listener
 
+# Create listener directory for stored payloads
+mkdir -p ~/.config/ctf/payloads
+
 cat >> ~/.bashrc << 'LISTENER'
 
 # --- Feature: Reverse Shell Listener ---

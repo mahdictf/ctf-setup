@@ -1,5 +1,8 @@
 #!/bin/bash
-# Basic Aliases
+# Feature: Basic Aliases
+
+# This script adds basic aliases to bashrc
+# No special setup needed - just append aliases
 
 cat >> ~/.bashrc << 'ALIASES'
 

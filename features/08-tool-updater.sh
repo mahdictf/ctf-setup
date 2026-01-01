@@ -2,6 +2,7 @@
 # Feature: Tool Updater
 
 mkdir -p "$HOME/tools"
+mkdir -p "$HOME/.config/ctf"
 
 cat > "$HOME/tools/update-tools.sh" << 'UPDATER'
 #!/bin/bash
@@ -34,4 +35,4 @@ alias update-tools='~/tools/update-tools.sh'
 
 UPDATE
 
-echo "[✓] Tool updater added"
+echo "[✓] Tool updater configured"

@@ -1,6 +1,11 @@
 #!/bin/bash
 # Feature: Network Info Dashboard
 
+# Verify curl is available for public IP detection
+if ! command -v curl &>/dev/null; then
+    echo "[!] curl not found, skipping some network features"
+fi
+
 cat >> ~/.bashrc << 'NETINFO'
 
 # --- Feature: Network Info ---

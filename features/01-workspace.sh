@@ -1,6 +1,9 @@
 #!/bin/bash
 # Feature: Universal Workspace Generator
 
+# Create platform directories
+mkdir -p ~/{htb,thm,ctf,pentesterlab}
+
 cat >> ~/.bashrc << 'WORKSPACE'
 
 # --- Feature: Workspace Generator ---

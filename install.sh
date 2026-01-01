@@ -161,42 +161,55 @@ install_feature() {
 load_all_features() {
     step "Loading all enabled features..."
     
-    # Load core features
-    for feature in "$SCRIPT_DIR/features"/*.sh; do
-        if [ -f "$feature" ]; then
-            local feature_name=$(basename "$feature" .sh)
-            local config_var="FEATURE_${feature_name^^}"
-            config_var="${config_var//-/_}"
-            
-            if [ "${!config_var}" = "true" ] 2>/dev/null || [ -z "${!config_var}" ]; then
-                install_feature "$feature" "$(basename $feature .sh)"
-            fi
-        fi
-    done
+    local loaded=0
+    local failed=0
     
-    # Load optional features if enabled
-    for feature in "$SCRIPT_DIR/optional"/*.sh; do
-        if [ -f "$feature" ]; then
-            local feature_name=$(basename "$feature" .sh)
-            local config_var="FEATURE_${feature_name^^}"
-            config_var="${config_var//-/_}"
-            
-            if [ "${!config_var}" = "true" ] 2>/dev/null; then
-                install_feature "$feature" "$(basename $feature .sh)"
+    # Load core features
+    if [ -d "$SCRIPT_DIR/features" ]; then
+        for feature in "$SCRIPT_DIR/features"/*.sh; do
+            if [ -f "$feature" ]; then
+                if install_feature "$feature" "$(basename $feature .sh)"; then
+                    ((loaded++))
+                else
+                    ((failed++))
+                fi
             fi
-        fi
-    done
+        done
+    fi
+    
+    # Load optional features if enabled and directory exists
+    if [ -d "$SCRIPT_DIR/optional" ]; then
+        for feature in "$SCRIPT_DIR/optional"/*.sh; do
+            if [ -f "$feature" ]; then
+                if install_feature "$feature" "Optional: $(basename $feature .sh)"; then
+                    ((loaded++))
+                else
+                    ((failed++))
+                fi
+            fi
+        done
+    fi
     
     # Load custom features
     if [ -d "$SCRIPT_DIR/custom" ]; then
         for feature in "$SCRIPT_DIR/custom"/*.sh; do
             if [ -f "$feature" ]; then
-                install_feature "$feature" "Custom: $(basename $feature .sh)"
+                if install_feature "$feature" "Custom: $(basename $feature .sh)"; then
+                    ((loaded++))
+                else
+                    ((failed++))
+                fi
             fi
         done
     fi
     
-    success "All features loaded"
+    if [ $failed -eq 0 ]; then
+        success "All features loaded ($loaded total)"
+        return 0
+    else
+        error "Features loaded: $loaded, Failed: $failed"
+        return 1
+    fi
 }
 
 quick_install() {
@@ -204,8 +217,15 @@ quick_install() {
     echo -e "${GREEN}Starting Quick Install...${NC}"
     echo ""
     
-    install_system_setup
-    load_all_features
+    install_system_setup || {
+        error "System setup failed. Aborting."
+        return 1
+    }
+    
+    load_all_features || {
+        error "Some features failed to load"
+        return 1
+    }
     
     echo ""
     echo -e "${GREEN}✓ Quick Installation Complete!${NC}"
@@ -222,29 +242,138 @@ custom_install() {
     echo -e "${GREEN}Starting Custom Install...${NC}"
     echo ""
     
-    install_system_setup
+    install_system_setup || {
+        error "System setup failed. Aborting."
+        return 1
+    }
+    
+    local success_count=0
+    local fail_count=0
     
     for selection in $selections; do
         case $selection in
-            1) install_feature "$SCRIPT_DIR/core/system-setup.sh" "System Setup" ;;
-            2) install_feature "$SCRIPT_DIR/features/01-workspace.sh" "Workspace Generator" ;;
-            3) install_feature "$SCRIPT_DIR/features/02-vpn-manager.sh" "VPN Manager" ;;
-            4) install_feature "$SCRIPT_DIR/features/03-listener.sh" "Reverse Shell Listener" ;;
-            5) install_feature "$SCRIPT_DIR/features/04-file-transfer.sh" "File Transfer Tools" ;;
-            6) install_feature "$SCRIPT_DIR/features/05-payload-gen.sh" "Payload Generator" ;;
-            7) install_feature "$SCRIPT_DIR/features/06-network-info.sh" "Network Info" ;;
-            8) install_feature "$SCRIPT_DIR/features/07-target-manager.sh" "Target Manager" ;;
-            9) install_feature "$SCRIPT_DIR/optional/bloodhound.sh" "BloodHound" ;;
-            10) install_feature "$SCRIPT_DIR/optional/docker-tools.sh" "Docker" ;;
-            11) install_feature "$SCRIPT_DIR/optional/burp-config.sh" "Burp Suite" ;;
-            12) install_feature "$SCRIPT_DIR/optional/report-gen.sh" "Report Generator" ;;
-            A|a) load_all_features ;;
+            1) 
+                if install_feature "$SCRIPT_DIR/core/system-setup.sh" "System Setup"; then
+                    ((success_count++))
+                else
+                    ((fail_count++))
+                fi
+                ;;
+            2) 
+                if install_feature "$SCRIPT_DIR/features/01-workspace.sh" "Workspace Generator"; then
+                    ((success_count++))
+                else
+                    ((fail_count++))
+                fi
+                ;;
+            3) 
+                if install_feature "$SCRIPT_DIR/features/02-vpn-manager.sh" "VPN Manager"; then
+                    ((success_count++))
+                else
+                    ((fail_count++))
+                fi
+                ;;
+            4) 
+                if install_feature "$SCRIPT_DIR/features/03-listener.sh" "Reverse Shell Listener"; then
+                    ((success_count++))
+                else
+                    ((fail_count++))
+                fi
+                ;;
+            5) 
+                if install_feature "$SCRIPT_DIR/features/04-file-transfer.sh" "File Transfer Tools"; then
+                    ((success_count++))
+                else
+                    ((fail_count++))
+                fi
+                ;;
+            6) 
+                if install_feature "$SCRIPT_DIR/features/05-payload-gen.sh" "Payload Generator"; then
+                    ((success_count++))
+                else
+                    ((fail_count++))
+                fi
+                ;;
+            7) 
+                if install_feature "$SCRIPT_DIR/features/06-network-info.sh" "Network Info"; then
+                    ((success_count++))
+                else
+                    ((fail_count++))
+                fi
+                ;;
+            8) 
+                if install_feature "$SCRIPT_DIR/features/07-target-manager.sh" "Target Manager"; then
+                    ((success_count++))
+                else
+                    ((fail_count++))
+                fi
+                ;;
+            9) 
+                if [ -f "$SCRIPT_DIR/optional/09-bloodhound.sh" ]; then
+                    if install_feature "$SCRIPT_DIR/optional/09-bloodhound.sh" "BloodHound"; then
+                        ((success_count++))
+                    else
+                        ((fail_count++))
+                    fi
+                else
+                    error "BloodHound feature not found"
+                    ((fail_count++))
+                fi
+                ;;
+            10) 
+                if [ -f "$SCRIPT_DIR/optional/10-docker-tools.sh" ]; then
+                    if install_feature "$SCRIPT_DIR/optional/10-docker-tools.sh" "Docker"; then
+                        ((success_count++))
+                    else
+                        ((fail_count++))
+                    fi
+                else
+                    error "Docker feature not found"
+                    ((fail_count++))
+                fi
+                ;;
+            11) 
+                if [ -f "$SCRIPT_DIR/optional/11-burp-config.sh" ]; then
+                    if install_feature "$SCRIPT_DIR/optional/11-burp-config.sh" "Burp Suite"; then
+                        ((success_count++))
+                    else
+                        ((fail_count++))
+                    fi
+                else
+                    error "Burp Suite feature not found"
+                    ((fail_count++))
+                fi
+                ;;
+            12) 
+                if [ -f "$SCRIPT_DIR/optional/12-report-gen.sh" ]; then
+                    if install_feature "$SCRIPT_DIR/optional/12-report-gen.sh" "Report Generator"; then
+                        ((success_count++))
+                    else
+                        ((fail_count++))
+                    fi
+                else
+                    error "Report Generator feature not found"
+                    ((fail_count++))
+                fi
+                ;;
+            A|a) 
+                load_all_features
+                ;;
+            *)
+                error "Unknown selection: $selection"
+                ((fail_count++))
+                ;;
         esac
     done
     
     echo ""
-    echo -e "${GREEN}✓ Custom Installation Complete!${NC}"
-    show_completion_message
+    if [ $fail_count -eq 0 ]; then
+        echo -e "${GREEN}✓ Custom Installation Complete! ($success_count features installed)${NC}"
+        show_completion_message
+    else
+        echo -e "${YELLOW}Custom Installation Completed with warnings: $success_count installed, $fail_count failed${NC}"
+        read -p "Press Enter to continue..."
+    fi
 }
 
 update_installation() {

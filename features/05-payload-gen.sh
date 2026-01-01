@@ -1,6 +1,9 @@
 #!/bin/bash
 # Feature: Payload Generator
 
+# Create payload directory
+mkdir -p ~/.config/ctf/payloads
+
 cat >> ~/.bashrc << 'PAYLOAD'
 
 # --- Feature: Payload Generator ---

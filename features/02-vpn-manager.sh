@@ -1,6 +1,9 @@
 #!/bin/bash
 # Feature: Multi-Platform VPN Manager
 
+# Ensure VPN directory exists
+mkdir -p ~/Downloads
+
 cat >> ~/.bashrc << 'VPN'
 
 # --- Feature: VPN Manager ---
